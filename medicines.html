@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwasthyaAI - Medicine Reminders</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font for aesthetics -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles based on the preferred medical palette: Sky Blue/Teal and Lime Green */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            /* Subtle light blue/white gradient for soft background */
+            background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 50%, #f0f9ff 100%); 
+            color: #1f2937; /* Dark text */
+        }
+        
+        /* Glass effect for the header */
+        .glass-effect-light {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #1f2937;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* PRIMARY COLOR: Sky Blue/Teal for main actions (Trust, Calm) */
+        .gradient-primary {
+            background: linear-gradient(90deg, #06b6d4 0%, #0891b2 100%); /* Tailwind cyan/sky blend */
+        }
+        .shadow-primary {
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4); /* Shadow based on Sky Blue */
+        }
+        
+        /* SECONDARY COLOR: Lime/Green for health tracking (Wellness, Vitality) */
+        .gradient-secondary {
+            background: linear-gradient(90deg, #84cc16 0%, #65a30d 100%); /* Tailwind lime/green blend */
+        }
+
+        /* Accent Colors */
+        .text-accent-blue { color: #06b6d4; }
+        .text-accent-green { color: #84cc16; }
+        .bg-accent-light { background-color: #e0f2f7; /* Light cyan */ }
+
+        /* Status Colors */
+        .status-taken { background-color: #dcfce7; border-left: 4px solid #4ade80; } /* Light Green */
+        .status-pending { background-color: #fffbeb; border-left: 4px solid #facc15; } /* Light Yellow */
+        .status-upcoming { background-color: #eff6ff; border-left: 4px solid #60a5fa; } /* Light Blue */
+
+
+        .transition-smooth {
+            transition-property: all;
+            transition-duration: 150ms;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- NAVIGATION BAR -->
+    <nav class="sticky top-0 z-50 glass-effect-light border-b border-gray-100">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          
+          <!-- Logo -->
+          <a href="index.html" class="flex items-center gap-2 font-extrabold text-2xl text-gray-900">
+            <div class="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-white">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+              </svg>
+            </div>
+            <span>SwasthyaAI</span>
+          </a>
+
+          <!-- Desktop Navigation -->
+          <div class="hidden md:flex items-center gap-4 text-gray-700">
+            <a href="index.html" class="flex items-center gap-2 px-3 py-2 rounded-lg transition-smooth hover:text-gray-900 hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Home
+            </a>
+            <a href="#" onclick="alert('Navigating to Dashboard...')"
+               class="flex items-center gap-2 px-3 py-2 rounded-lg transition-smooth hover:text-gray-900 hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
+            </a>
+            <a href="#" onclick="alert('Navigating to Lab Reports...')"
+               class="flex items-center gap-2 px-3 py-2 rounded-lg transition-smooth hover:text-gray-900 hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> Lab Reports
+            </a>
+            <a href="medicines.html"
+               class="flex items-center gap-2 px-3 py-2 rounded-lg transition-smooth bg-accent-light text-accent-blue font-medium" 
+               aria-current="page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m10.5 4.5 9 9-4.5 4.5-9-9 4.5-4.5z"/><path d="M18.372 5.629 14 10l-4.372-4.372a1.5 1.5 0 0 1 2.122-2.121z"/><path d="m5 19 4-4"/></svg> Medicines
+            </a>
+            
+            <a href="auth.html" 
+                    class="text-white font-semibold py-2 px-4 rounded-lg transition-smooth gradient-primary shadow-lg hover:opacity-90 hover:shadow-cyan-400/50">
+                Get Started
+            </a>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <button id="mobile-menu-button" class="md:hidden p-2 text-gray-900 hover:bg-gray-200 rounded-lg" onclick="toggleMobileMenu()">
+            <svg id="menu-icon" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
+            </svg>
+            <svg id="close-icon" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden py-4 animate-fade-in border-t border-gray-200">
+            <a href="index.html" onclick="toggleMobileMenu()" class="flex items-center gap-2 px-4 py-3 rounded-lg transition-smooth text-gray-700 hover:text-gray-900 hover:bg-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Home
+            </a>
+            <a href="#" onclick="toggleMobileMenu(); alert('Navigating to Dashboard')" class="flex items-center gap-2 px-4 py-3 rounded-lg transition-smooth text-gray-700 hover:text-gray-900 hover:bg-gray-100 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
+            </a>
+            <a href="#" onclick="toggleMobileMenu(); alert('Navigating to Lab Reports')" class="flex items-center gap-2 px-4 py-3 rounded-lg transition-smooth text-gray-700 hover:text-gray-900 hover:bg-gray-100 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> Lab Reports
+            </a>
+            <a href="medicines.html" onclick="toggleMobileMenu()" class="flex items-center gap-2 px-4 py-3 rounded-lg transition-smooth bg-accent-light text-accent-blue font-medium mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m10.5 4.5 9 9-4.5 4.5-9-9 4.5-4.5z"/><path d="M18.372 5.629 14 10l-4.372-4.372a1.5 1.5 0 0 1 2.122-2.121z"/><path d="m5 19 4-4"/></svg> Medicines
+            </a>
+          <div class="mt-4 px-4">
+            <a href="auth.html"
+                    class="w-full block text-center text-white font-semibold py-3 px-4 rounded-lg transition-smooth gradient-primary shadow-lg hover:shadow-cyan-400/50">Get Started</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <!-- END NAVIGATION BAR -->
+
+    <main class="max-w-6xl mx-auto px-4 py-10">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-4xl font-extrabold text-gray-900">Medicine Reminders</h1>
+            <button onclick="toggleAddMedicineForm()"
+                    class="px-5 py-2 rounded-lg text-white font-semibold gradient-primary shadow-md hover:opacity-90 transition-smooth">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline w-4 h-4 mr-1 align-text-bottom">
+                    <path d="M5 12h14"/><path d="M12 5v14"/>
+                </svg>
+                Add Medicine
+            </button>
+        </div>
+        <p class="text-gray-600 mb-8">Never miss a dose with smart medication tracking.</p>
+
+        <!-- Add Medicine Form (Hidden by default) -->
+        <div id="add-medicine-form" class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-100 hidden">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Add New Medicine</h2>
+            <form onsubmit="handleAddMedicine(event)">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-1">
+                        <label for="med-name" class="block text-sm font-medium text-gray-700 mb-1">Medicine Name</label>
+                        <input type="text" id="med-name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent-blue focus:border-accent-blue outline-none" placeholder="e.g., Aspirin 75mg">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label for="med-dosage" class="block text-sm font-medium text-gray-700 mb-1">Dosage</label>
+                        <input type="text" id="med-dosage" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent-blue focus:border-accent-blue outline-none" placeholder="e.g., 1 tablet, 2 capsules">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label for="med-time" class="block text-sm font-medium text-gray-700 mb-1">Time (24h Format)</label>
+                        <input type="time" id="med-time" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-accent-blue focus:border-accent-blue outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="toggleAddMedicineForm()" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-white font-semibold rounded-lg gradient-primary hover:opacity-90 transition-colors">Save Medicine</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- Taken Today -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500 flex items-center justify-between">
+                <div>
+                    <div id="taken-count" class="text-3xl font-bold text-green-600">1/3</div>
+                    <div class="text-sm text-gray-500">Taken Today</div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+            </div>
+            <!-- Pending Today -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-amber-500 flex items-center justify-between">
+                <div>
+                    <div id="pending-count" class="text-3xl font-bold text-amber-600">2</div>
+                    <div class="text-sm text-gray-500">Pending Today</div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <!-- Active Reminders -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500 flex items-center justify-between">
+                <div>
+                    <div id="active-count" class="text-3xl font-bold text-blue-600">5</div>
+                    <div class="text-sm text-gray-500">Active Reminders</div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 6 6v7H6v-7a6 6 0 0 1 6-6z"/><path d="M10 2h4"/></svg>
+            </div>
+        </div>
+
+        <!-- Today's Schedule -->
+        <h2 class="text-2xl font-extrabold text-gray-900 mb-6 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-accent-blue"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M10 14h.01"/><path d="M14 14h.01"/><path d="M18 14h.01"/><path d="M6 18h.01"/></svg>
+            Today's Schedule
+        </h2>
+        
+        <div id="today-schedule" class="space-y-4">
+            <!-- Medicine Item 1 (TAKEN) -->
+            <div id="metformin" class="med-item status-taken p-5 rounded-xl shadow-md flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-4"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+                    <div>
+                        <div class="font-semibold text-gray-800">Metformin 500mg <span class="text-xs font-normal text-gray-500">(1 tablet)</span></div>
+                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-3">
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 08:00 AM</span>
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg> Daily</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="bg-yellow-100 text-yellow-700 text-xs font-medium px-2 py-1 rounded-full">Diabetes</span>
+                    <button class="mark-taken-btn bg-white text-green-600 font-semibold px-4 py-2 rounded-lg cursor-default opacity-50" disabled>
+                        Taken
+                    </button>
+                </div>
+            </div>
+
+            <!-- Medicine Item 2 (PENDING) -->
+            <div id="vitamin-d" class="med-item status-pending p-5 rounded-xl shadow-md flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-4"><path d="M12 20h.01"/><path d="M12 4v4"/><path d="M4 12H8"/><path d="M16 12h4"/><path d="M6.34 6.34l2.83 2.83"/><path d="M14.83 14.83l2.83 2.83"/><path d="M6.34 17.66l2.83-2.83"/><path d="M14.83 9.17l2.83-2.83"/></svg>
+                    <div>
+                        <div class="font-semibold text-gray-800">Vitamin D3 1000 IU <span class="text-xs font-normal text-gray-500">(1 capsule)</span></div>
+                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-3">
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 12:00 PM</span>
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg> Daily</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="bg-accent-light text-accent-blue text-xs font-medium px-2 py-1 rounded-full">Supplement</span>
+                    <button onclick="markTaken('vitamin-d')" class="mark-taken-btn gradient-secondary text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:shadow-lg transition-shadow">
+                        Mark Taken
+                    </button>
+                </div>
+            </div>
+
+            <!-- Medicine Item 3 (PENDING) -->
+            <div id="aspirin" class="med-item status-pending p-5 rounded-xl shadow-md flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-4"><path d="M12 20h.01"/><path d="M12 4v4"/><path d="M4 12H8"/><path d="M16 12h4"/><path d="M6.34 6.34l2.83 2.83"/><path d="M14.83 14.83l2.83 2.83"/><path d="M6.34 17.66l2.83-2.83"/><path d="M14.83 9.17l2.83-2.83"/></svg>
+                    <div>
+                        <div class="font-semibold text-gray-800">Aspirin 75mg <span class="text-xs font-normal text-gray-500">(1 tablet)</span></div>
+                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-3">
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 08:00 PM</span>
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg> Daily</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="bg-red-100 text-red-700 text-xs font-medium px-2 py-1 rounded-full">Cardiovascular</span>
+                    <button onclick="markTaken('aspirin')" class="mark-taken-btn gradient-secondary text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:shadow-lg transition-shadow">
+                        Mark Taken
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Schedule -->
+        <h2 class="text-2xl font-extrabold text-gray-900 mt-10 mb-6 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-3 text-accent-blue"><path d="M10 2v4"/><path d="M14 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M10 14h.01"/><path d="M14 18h.01"/><path d="M6 18h.01"/><path d="M10 18h.01"/></svg>
+            Upcoming
+        </h2>
+        
+        <div class="space-y-4">
+            <!-- Upcoming Item 1 -->
+            <div class="med-item status-upcoming p-5 rounded-xl shadow-md flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-4"><path d="m10.5 4.5 9 9-4.5 4.5-9-9 4.5-4.5z"/><path d="M18.372 5.629 14 10l-4.372-4.372a1.5 1.5 0 0 1 2.122-2.121z"/><path d="m5 19 4-4"/></svg>
+                    <div>
+                        <div class="font-semibold text-gray-800">Omega-3 Fish Oil <span class="text-xs font-normal text-gray-500">(2 capsules)</span></div>
+                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-3">
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 09:00 AM</span>
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg> Tomorrow</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Item 2 -->
+            <div class="med-item status-upcoming p-5 rounded-xl shadow-md flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-4"><path d="m10.5 4.5 9 9-4.5 4.5-9-9 4.5-4.5z"/><path d="M18.372 5.629 14 10l-4.372-4.372a1.5 1.5 0 0 1 2.122-2.121z"/><path d="m5 19 4-4"/></svg>
+                    <div>
+                        <div class="font-semibold text-gray-800">Calcium + Vitamin K2 <span class="text-xs font-normal text-gray-500">(1 tablet)</span></div>
+                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-3">
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 07:00 PM</span>
+                            <span class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg> Tomorrow</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medicine Tip -->
+        <div class="mt-10 p-5 rounded-xl shadow-lg bg-white border-l-4 border-blue-400">
+            <h3 class="font-bold text-gray-800 mb-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Medicine Tip
+            </h3>
+            <p class="text-sm text-gray-600">Take your medicines at the same time each day to maintain consistent levels in your body. Set up notifications to never miss a dose!</p>
+        </div>
+    </main>
+
+    <!-- FOOTER (Minimized for single-page file) -->
+    <footer class="bg-gray-800 text-gray-300 py-6 mt-16 text-center shadow-inner">
+        <p class="text-xs text-gray-400">&copy; 2025 SwasthyaAI. All rights reserved.</p>
+    </footer>
+    <!-- END FOOTER -->
+
+    <!-- Inline JavaScript for Functionality -->
+    <script>
+      let takenCount = 1;
+      let pendingCount = 2;
+      const totalCount = 3;
+
+      document.addEventListener('DOMContentLoaded', () => {
+          updateSummaryCounts();
+      });
+
+      function updateSummaryCounts() {
+          document.getElementById('taken-count').textContent = `${takenCount}/${totalCount}`;
+          document.getElementById('pending-count').textContent = pendingCount;
+      }
+
+      function markTaken(itemId) {
+          const item = document.getElementById(itemId);
+          const button = item.querySelector('.mark-taken-btn');
+          const statusDiv = item.querySelector('div:first-child svg');
+
+          if (item && pendingCount > 0) {
+              // Update status styles
+              item.classList.remove('status-pending');
+              item.classList.add('status-taken');
+              
+              // Update button state
+              button.textContent = 'Taken';
+              button.disabled = true;
+              button.classList.remove('gradient-secondary', 'hover:shadow-lg');
+              button.classList.add('bg-white', 'text-green-600', 'cursor-default', 'opacity-50');
+
+              // Update icon (optional: changing the SVG stroke color/path is complex, simplified here)
+              statusDiv.setAttribute('stroke', '#4ade80');
+              
+              // Update counts
+              takenCount++;
+              pendingCount--;
+              updateSummaryCounts();
+              
+              // Show confirmation message (using native alert as per previous pattern)
+              alert('Medicine successfully marked as taken!');
+          }
+      }
+      
+      function toggleAddMedicineForm() {
+        const form = document.getElementById('add-medicine-form');
+        form.classList.toggle('hidden');
+      }
+      
+      function handleAddMedicine(event) {
+          event.preventDefault();
+          const name = document.getElementById('med-name').value;
+          const time = document.getElementById('med-time').value;
+
+          alert(`Adding new medicine: ${name} scheduled for ${time}. (Functionality not fully implemented)`);
+          
+          // Clear form and hide it
+          event.target.reset();
+          toggleAddMedicineForm();
+
+          // In a real app, you would dynamically add a new item to the schedule list here
+      }
+
+      function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+
+        if (menu.classList.contains('hidden')) {
+          menu.classList.remove('hidden');
+          menuIcon.classList.add('hidden');
+          closeIcon.classList.remove('hidden');
+        } else {
+          menu.classList.add('hidden');
+          menuIcon.classList.remove('hidden');
+          closeIcon.classList.add('hidden');
+        }
+      }
+    </script>
+</body>
+</html>
